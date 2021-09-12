@@ -17,20 +17,21 @@ AnalogIn x_axis (PC_2);
 AnalogIn y_axis (PC_3);
 
 //Button
-DigitalIn left_button(PA_14); //left button
-DigitalIn center_button(PB_7); // center button
-DigitalIn right_button(PC_4);// right button
+/*
+DigitalIn left_button(PA_14); //left button (GPIOA->IDR & (1<<14))==0
+DigitalIn center_button(PB_7); // center button (GPIOB->IDR & (1<<7)==0 
+DigitalIn right_button(PC_4);// right button (GPIOC->IDR & (1<<4))==0
+
 
 //LED
 DigitalOut left_led(PA_13); //left led
 DigitalOut center_led(D6); //center led
 DigitalOut right_led(PA_4); //right led
-
 //RGB
 DigitalOut Red(A1); //RGB Red
 DigitalOut Green(PC_6); //RGB Green
 DigitalOut Blue(A3); //RGB Blue
-
+*/
 void config();
 void ultrasonic();
 void display();
@@ -75,13 +76,15 @@ float current_temp, desired_temp=18.0; //default = 18.0;
 float humid;
 int wind_power=2; // 1~5
 bool automatic=true;
+bool vent;
 
 int main(){
    config();
 
    while(1)
    {
-		 	if(!right_button){
+		 	if((GPIOC->IDR & (1<<4))==0){
+				wait(0.3);
 				SYSTEM_ON();
 			}
       while(sys_on){
@@ -103,7 +106,7 @@ int main(){
 							desired_temp+=0.5;
 						}
 						automatic=false;
-						center_led=0;
+						GPIOB->ODR &=~(1<<10);
 						break;
 					}
 					else if(x>700&&y<5){
@@ -114,7 +117,7 @@ int main(){
 							wind_power+=1;
 						}
 						automatic=false;
-						center_led=0;
+						GPIOB->ODR &=~(1<<10);
 						break;
 						
 					}
@@ -127,7 +130,7 @@ int main(){
 							desired_temp-=0.5;
 						}
 						automatic=false;
-						center_led=0;
+						GPIOB->ODR &=~(1<<10);
 						break;
 						
 					}
@@ -140,39 +143,41 @@ int main(){
 							wind_power-=1;
 						}
 						automatic=false;
-						center_led=0;
+						GPIOB->ODR &=~(1<<10);
 						break;
 					}		
 				}
 			 // click SW2 : left button = cooler / heater
-			 if(!left_button){
+			 if((GPIOA->IDR & (1<<14))==0){
 					if(mode==COOLER){
 						mode=HEAT;
-						left_led=0;
-						Red=1;
-						Blue=0;
-						Green=0;
+						GPIOA->ODR &= ~(1<<13);
+						GPIOA->ODR |= (1<<1);
+						GPIOB->ODR &= ~(1<<0);
+						GPIOC->ODR &= ~(1<<6);
 					}
 					else{
 						mode=COOLER;
-						left_led=1;
-						Red=0;
-						Blue=1;
-						Green=0;
+						GPIOA->ODR |= (1<<13);
+						GPIOA->ODR &= ~(1<<1);
+						GPIOB->ODR |= (1<<0);
+						GPIOC->ODR &= ~(1<<6);
 					}
 					wait(0.01);
 					WIND_ON(wind_power);
 			 }
 		//click SW9 : center button = auto / manual
-			if(!center_button){
+			if((GPIOB->IDR & (1<<7))==0){
 					if(automatic)
 					{
 						 automatic=false;
-						 center_led=0;
+						 vent = false;
+						 GPIOB->ODR &=~(1<<10);
 					}
 					else{
 						 automatic=true;
-						 center_led=1;
+						 vent = true;
+						 GPIOB->ODR |=(1<<10);
 					}
 			}
 			pc.printf("current_temp:%f desired_temp:%f wind_power:%d mode:%d\r\n",current_temp,desired_temp,wind_power,mode);
@@ -182,34 +187,38 @@ int main(){
 			pc.printf("AUTO MODE\r\n");
 				if(mode==COOLER){
 					pc.printf("COOLER MODE\r\n");
-					//COOLER MODE AREA
-					if(current_temp-desired_temp>0){
-						if(wind_power<5){
-							wind_power++;
-							WIND_ON(wind_power);
-						}
-						else{
-							wind_power=5;
-							WIND_ON(wind_power);
-						}
-					} else {
+					if(current_temp-desired_temp>=10){
+						wind_power = 5;
+						WIND_ON(wind_power);
+					} else if(current_temp-desired_temp>=6){
+						wind_power = 4;
+						WIND_ON(wind_power);
+					}else if(current_temp-desired_temp>=3){
+						wind_power = 3;
+						WIND_ON(wind_power);
+					}else if(current_temp-desired_temp>=1){
+						wind_power = 2;
+						WIND_ON(wind_power);
+					}else {
 						wind_power=1;
 						WIND_ON(wind_power);
 					}
 				}
 				else{
 					pc.printf("HEATER MODE\r\n");
-					//HEATER MODE AREA
-					if(desired_temp-current_temp>0){
-						if(wind_power<5){
-							wind_power++;
-							WIND_ON(wind_power);
-						}
-						else{
-							wind_power=5;
-							WIND_ON(wind_power);
-						}
-					} else {
+					if(desired_temp-current_temp>=10){
+						wind_power = 5;
+						WIND_ON(wind_power);
+					} else if(desired_temp-current_temp>=6){
+						wind_power = 4;
+						WIND_ON(wind_power);
+					}else if(desired_temp-current_temp>=3){
+						wind_power = 3;
+						WIND_ON(wind_power);
+					}else if(desired_temp-current_temp>=1){
+						wind_power = 2;
+						WIND_ON(wind_power);
+					}else {
 						wind_power=1;
 						WIND_ON(wind_power);
 					}
@@ -221,9 +230,10 @@ int main(){
 			}
 
 		//click SW 10 : right button = power on/off
-			if(!right_button){
+			if((GPIOC->IDR & (1<<4))==0){
 					if(sys_on){
-						 SYSTEM_OFF();
+							SYSTEM_OFF();
+							wait(0.3);
 							break;
 					}
 			}
@@ -240,7 +250,59 @@ void config(){
 	myGUI.clearDisplay();
 	echo_pin.mode(PullDown); //ultrasonic
 	display_ticker.attach(&display,1.0);	
-	pc.printf("HAVC SYSTEM\r\n");		
+	pc.printf("HAVC SYSTEM\r\n");
+	
+/*
+	//Button
+	DigitalIn left_button(PA_14); //left button
+	DigitalIn center_button(PB_7); // center button
+	DigitalIn right_button(PC_4);// right button
+
+	//LED
+	DigitalOut left_led(PA_13); //left led
+	DigitalOut center_led(D6); D6=PB10 //center led
+	DigitalOut (PA_4); //right led
+
+	//RGB
+	DigitalOut Red(A1); PA1 //RGB Red
+	DigitalOut Green(PC_6); PC_6 //RGB Green
+	DigitalOut Blue(A3); // PB0 RGB Blue
+
+*/
+	//Set Register
+	RCC->AHB1ENR |= (1<<0); //Assign Clock GPIOA
+	RCC->AHB1ENR |= (1<<1); //Assign Clock GPIOB
+	RCC->AHB1ENR |= (1<<2); //Assign Clock GPIOC
+	//SET MODE
+	//BUTTON
+	GPIOA->MODER &=~(3<<28); //PA14 Input Mode
+	GPIOB->MODER &=~(3<<14); //PB7 Input Mode
+	GPIOC->MODER &=~(3<<8); //PC4 Input Mode
+	//LED
+	GPIOA->MODER &=~(1<<27); //PA13 left_led
+	GPIOA->MODER |=(1<<26);
+	GPIOB->MODER &=~(1<<21);//PB10 center_led
+	GPIOB->MODER |=(1<<20);
+	GPIOA->MODER &=~(1<<9); //PA4 right_led
+	GPIOA->MODER |=(1<<8);
+	//RGB
+	GPIOA->MODER &=~(1<<3); //PA1 Red 
+	GPIOA->MODER |=(1<<2);
+	GPIOC->MODER &=~(1<<13);//PC6 Green
+	GPIOC->MODER |=(1<<12);
+	GPIOB->MODER &=~(1<<1);//PB0 Blue
+	GPIOB->MODER |=(1<<0);
+	//Set Output speed
+	GPIOA->OTYPER=0;
+	GPIOA->OSPEEDR=0;
+	GPIOB->OTYPER=0;
+	GPIOB->OSPEEDR=0;
+	GPIOC->OTYPER=0;
+	GPIOC->OSPEEDR=0;
+	
+	
+	
+	
 }
 
 void timeout_SYSTEM_OFF(){
@@ -332,7 +394,15 @@ void display(){
 		for(int i=0;i<wind_power;i++){
 			myGUI.printf (">");
 		}
+		myGUI.printf ("\r\n");
 		// Air vent
+		if(vent){
+			myGUI.printf ("vent open\r\n");
+
+		}else{
+			myGUI.printf ("vent closed\r\n");
+
+		}
 		myGUI.printf ("\r\n");
 
 	}
@@ -349,24 +419,25 @@ void SYSTEM_OFF(){
 	sound.period(1.0);
 	sound=0.5;
 	WIND_OFF();
-	right_led=0;
-	center_led=0;
-	left_led=0;
-	Red=0;
-	Blue=0;
-	Green=1;
+	GPIOA->ODR &= ~(1<<4);
+	GPIOB->ODR &=~(1<<10);
+	GPIOA->ODR &= ~(1<<13);
+	GPIOA->ODR &= ~(1<<1);
+	GPIOB->ODR &= ~(1<<0);
+	GPIOC->ODR |= (1<<6);
 }
 
 void SYSTEM_ON(){
+	vent = true;
 	sys_on = true;
 	mode=COOLER;
 	automatic=true;
-	right_led=1;
-	center_led=1;
-	left_led=1;
-	Red=0;
-	Blue=1;
-	Green=0;
+	GPIOA->ODR |= (1<<4);
+	GPIOB->ODR |=(1<<10);
+	GPIOA->ODR |= (1<<13);
+	GPIOA->ODR &= ~(1<<1);
+	GPIOB->ODR |= (1<<0);
+	GPIOC->ODR &= ~(1<<6);
 	WIND_ON(wind_power);
 }
 
