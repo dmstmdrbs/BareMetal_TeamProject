@@ -16,22 +16,6 @@ DHT22 sensor (PB_2); //Temp & Humid
 AnalogIn x_axis (PC_2);
 AnalogIn y_axis (PC_3);
 
-//Button
-/*
-DigitalIn left_button(PA_14); //left button (GPIOA->IDR & (1<<14))==0
-DigitalIn center_button(PB_7); // center button (GPIOB->IDR & (1<<7)==0 
-DigitalIn right_button(PC_4);// right button (GPIOC->IDR & (1<<4))==0
-
-
-//LED
-DigitalOut left_led(PA_13); //left led
-DigitalOut center_led(D6); //center led
-DigitalOut right_led(PA_4); //right led
-//RGB
-DigitalOut Red(A1); //RGB Red
-DigitalOut Green(PC_6); //RGB Green
-DigitalOut Blue(A3); //RGB Blue
-*/
 void config();
 void ultrasonic();
 void display();
@@ -252,23 +236,6 @@ void config(){
 	display_ticker.attach(&display,1.0);	
 	pc.printf("HAVC SYSTEM\r\n");
 	
-/*
-	//Button
-	DigitalIn left_button(PA_14); //left button
-	DigitalIn center_button(PB_7); // center button
-	DigitalIn right_button(PC_4);// right button
-
-	//LED
-	DigitalOut left_led(PA_13); //left led
-	DigitalOut center_led(D6); D6=PB10 //center led
-	DigitalOut (PA_4); //right led
-
-	//RGB
-	DigitalOut Red(A1); PA1 //RGB Red
-	DigitalOut Green(PC_6); PC_6 //RGB Green
-	DigitalOut Blue(A3); // PB0 RGB Blue
-
-*/
 	//Set Register
 	RCC->AHB1ENR |= (1<<0); //Assign Clock GPIOA
 	RCC->AHB1ENR |= (1<<1); //Assign Clock GPIOB
@@ -299,9 +266,6 @@ void config(){
 	GPIOB->OSPEEDR=0;
 	GPIOC->OTYPER=0;
 	GPIOC->OSPEEDR=0;
-	
-	
-	
 	
 }
 
