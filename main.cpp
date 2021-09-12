@@ -59,7 +59,7 @@ int x, y, debug_print;
 bool ultrasonic_timeout_flag = false;
 bool sys_on=false;
 int mode=COOLER; //COOLER, HEAT => default COOLER
-float current_temp, desired_temp=18.0; //default = 18.0; 
+float current_temp, desired_temp=21.0; //default = 18.0; 
 float humid;
 int wind_power=2; // 1~5
 bool automatic=true;
@@ -102,7 +102,7 @@ int main(){
 						}else{
 							desired_temp+=0.5;
 						}
-						automatic=false;
+						//automatic=false;
 						GPIOB->ODR &=~(1<<10);
 						break;
 					}
@@ -126,7 +126,7 @@ int main(){
 						}else{
 							desired_temp-=0.5;
 						}
-						automatic=false;
+						//automatic=false;
 						GPIOB->ODR &=~(1<<10);
 						break;
 						
