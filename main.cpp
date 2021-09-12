@@ -12,9 +12,6 @@
 Motor mt(D11,PC_8); // Motor
 PwmOut sound(PC_9); //Buzzer
 DHT22 sensor (PB_2); //Temp & Humid
-//Joystick
-AnalogIn x_axis (PC_2);
-AnalogIn y_axis (PC_3);
 
 void config();
 void ultrasonic();
@@ -29,6 +26,12 @@ void check_temp_and_humid();
 void joystick_handler();
 void WARNING_MAX();
 void WARNING_MIN();
+void ADC_Init();
+void ADC_Enable();
+void ADC_Start(int channel);
+void ADC_WaitForConv();
+void ADC_Disable();
+void delay(uint32_t time);
 
 class I2CPreInit : public I2C{
    public:
@@ -61,6 +64,8 @@ float humid;
 int wind_power=2; // 1~5
 bool automatic=true;
 bool vent;
+uint16_t ADC_GetVal();
+uint16_t ADC_VAL[2] = {0, 0};
 
 int main(){
    config();
@@ -74,13 +79,21 @@ int main(){
       while(sys_on){
         ultrasonic();
 				while(1){
-					x = x_axis.read() * 1000;
-					y = y_axis.read() * 1000;
+					ADC_Start(12);
+					ADC_WaitForConv();
+					ADC_VAL[0] = ADC_GetVal();
+					x = ADC_VAL[0];
+					
+					ADC_Start(13);
+					ADC_WaitForConv();
+					ADC_VAL[1] = ADC_GetVal();
+					y = ADC_VAL[1];
+					pc.printf("x: %d, y: %d\r\n", x, y);
 					//debug_print = 1;
-					if(y>765){
+					if(y>765*4){
 						break;
 					}
-					else if(x<5&&y<5){
+					else if(x<5*4&&y<5*4){
 
 						//temp up
 						
@@ -93,7 +106,7 @@ int main(){
 						GPIOB->ODR &=~(1<<10);
 						break;
 					}
-					else if(x>700&&y<5){
+					else if(x>700*4&&y<5*4){
 						//wind power up
 						if(wind_power==5){
 							WARNING_MAX();
@@ -105,7 +118,7 @@ int main(){
 						break;
 						
 					}
-					else if(x<5&&y>700){
+					else if(x<5*4&&y>700*4){
 						
 						//temp down
 						if(desired_temp<=16.06){
@@ -118,7 +131,7 @@ int main(){
 						break;
 						
 					}
-					else if(x>750&&y>750){
+					else if(x>730*4&&y>720*4){
 						//wind power down
 						
 						if(wind_power==1){
@@ -231,6 +244,10 @@ int main(){
 void config(){
 	pc.baud(9600);
 	SYSTEM_OFF();
+	//ADC init, enable
+	ADC_Init();
+	ADC_Enable();
+	
 	myGUI.clearDisplay();
 	echo_pin.mode(PullDown); //ultrasonic
 	display_ticker.attach(&display,1.0);	
@@ -276,8 +293,15 @@ void timeout_SYSTEM_OFF(){
 }
 
 void joystick_handler(){
-	x = x_axis.read() * 1000;
-	y = y_axis.read() * 1000;
+	ADC_Start(12);
+	ADC_WaitForConv();
+	ADC_VAL[0] = ADC_GetVal();
+	x = ADC_VAL[0] * 1000;
+					
+	ADC_Start(13);
+	ADC_WaitForConv();
+	ADC_VAL[1] = ADC_GetVal();
+	y = ADC_VAL[1] * 1000;
 	//debug_print = 1;
 	if(x<100){ // left side
 		 pc.printf("X=%d, Y=%d \r\n", x, y);
@@ -443,3 +467,58 @@ void check_temp_and_humid(){
 		humid=h;
 		//pc.printf("check temp and humid : %.1f %.1f\r\n",current_temp,humid);
 }
+
+void ADC_Init(){
+	RCC->APB2ENR |= (1<<8);
+	RCC->AHB1ENR |= (1<<2);
+	
+	ADC->CCR |= 1<<16;
+	
+	ADC1->CR1 = (1<<8);
+	ADC1->CR1 &= ~(1<<24);
+	
+	ADC1->CR2 |= (1<<1);
+	ADC1->CR2 |= (1<<10);
+	ADC1->CR2 &= ~(1<<11);
+	
+	ADC1->SMPR1 &= ~((1<<6)|(1<<9));
+	
+	ADC1->SQR1 |= (1<<20);
+	
+	GPIOC->MODER |= (3<<4);
+	GPIOC->MODER |= (3<<6);
+	
+}
+
+void ADC_Enable(){
+	ADC1->CR2 |= 1<<0;
+	uint32_t delay = 10000;
+	while(delay--);
+}
+
+void ADC_Start(int channel){
+	ADC1->SQR3 = 0;
+	ADC1->SQR3 |= (channel<<0);
+	
+	ADC1->SR = 0;
+	
+	ADC1->CR2 |= (1<<30);
+}
+
+void ADC_WaitForConv(){
+	while(!(ADC1->SR & (1<<1)));
+}
+
+uint16_t ADC_GetVal(){
+	return ADC1->DR;
+}
+
+void ADC_Disable(){
+	ADC1->CR2 &= ~(1<<0);
+}
+
+void delay(uint32_t time){
+	while(time--);
+}
+
+

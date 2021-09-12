@@ -5,7 +5,7 @@
 <h2>Tool Versions:</h2>
 IDE-Version: •ÏVision V5.25.2.0
 Copyright (C) 2018 ARM Ltd and ARM Germany GmbH. All rights reserved.
-License Information: Jang ByeongHui Ajou Univ. Flex license: MDK-ARM Professional (Eval) (mdk_pro_eval) Operation stops: 13 Sep 2021
+License Information: Daehwi Kwon Ajou Univ Flex license: MDK-ARM Professional (Eval) (mdk_pro_eval) Operation stops: 13 Sep 2021
  
 Tool Versions:
 Toolchain:       MDK-ARM Professional (Eval)  Version: 5.25.2.0
@@ -21,26 +21,14 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.1.0
 Dialog DLL:      TCM.DLL V1.35.1.0
  
 <h2>Project:</h2>
-C:\Users\jmkab\Desktop\BareMetal_TeamProject\Nucleo_blink_led.uvprojx
-Project File Date:  09/11/2021
+C:\dev\baremetal\BareMetal_TeamProject\Nucleo_blink_led.uvprojx
+Project File Date:  09/12/2021
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 *** Warning: Using Microlib and C++ file(s) might cause the linker to fail !
   
 Rebuild target 'mbed NUCLEO_F401RE'
-compiling main.cpp...
-C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
-  #define __FPU_PRESENT             1U       /*!< FPU present                                   */
-.\lib\hcsr04.h(71): warning:  #1-D: last line of file ends without a newline
-  #endif
-main.cpp(106): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                                                        desired_temp+=0.5;
-main.cpp(127): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                                                if(desired_temp<=16.06){
-main.cpp(130): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-                                                        desired_temp-=0.5;
-main.cpp: 5 warnings, 0 errors
 compiling Adafruit_GFX.cpp...
 C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
   #define __FPU_PRESENT             1U       /*!< FPU present                                   */
@@ -49,14 +37,18 @@ compiling Adafruit_SSD1306.cpp...
 C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
   #define __FPU_PRESENT             1U       /*!< FPU present                                   */
 lib\Adafruit_SSD1306.cpp: 1 warning, 0 errors
-compiling motordriver.cpp...
+compiling main.cpp...
 C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
   #define __FPU_PRESENT             1U       /*!< FPU present                                   */
-lib\motordriver.cpp: 1 warning, 0 errors
-compiling DHT22.cpp...
-C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
-  #define __FPU_PRESENT             1U       /*!< FPU present                                   */
-lib\DHT22.cpp: 1 warning, 0 errors
+.\lib\hcsr04.h(71): warning:  #1-D: last line of file ends without a newline
+  #endif
+main.cpp(103): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  							desired_temp+=0.5;
+main.cpp(124): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  						if(desired_temp<=16.06){
+main.cpp(127): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  							desired_temp-=0.5;
+main.cpp: 5 warnings, 0 errors
 compiling hcsr04.cpp...
 C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
   #define __FPU_PRESENT             1U       /*!< FPU present                                   */
@@ -65,8 +57,16 @@ lib\hcsr04.h(71): warning:  #1-D: last line of file ends without a newline
 lib\hcsr04.cpp(98): warning:  #1-D: last line of file ends without a newline
   */
 lib\hcsr04.cpp: 3 warnings, 0 errors
+compiling motordriver.cpp...
+C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
+  #define __FPU_PRESENT             1U       /*!< FPU present                                   */
+lib\motordriver.cpp: 1 warning, 0 errors
+compiling DHT22.cpp...
+C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f401xc.h(52): warning:  #47-D: incompatible redefinition of macro "__FPU_PRESENT" 
+  #define __FPU_PRESENT             1U       /*!< FPU present                                   */
+lib\DHT22.cpp: 1 warning, 0 errors
 linking...
-Program Size: Code=38308 RO-data=5524 RW-data=1580 ZI-data=3104  
+Program Size: Code=36984 RO-data=5212 RW-data=1564 ZI-data=3040  
 After Build - User command #1: fromelf --bin -o build\Nucleo_blink_led_NUCLEO_F401RE.bin build\Nucleo_blink_led.axf
 ".\build\Nucleo_blink_led.axf" - 0 Error(s), 12 Warning(s).
 
@@ -82,7 +82,7 @@ Package Vendor: Keil
   C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
-Build Time Elapsed:  00:00:30
+Build Time Elapsed:  00:00:10
 </pre>
 </body>
 </html>
