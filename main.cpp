@@ -182,6 +182,7 @@ int main(){
 			pc.printf("AUTO MODE\r\n");
 				if(mode==COOLER){
 					pc.printf("COOLER MODE\r\n");
+					//COOLER MODE AREA
 					if(current_temp-desired_temp>0){
 						if(wind_power<5){
 							wind_power++;
@@ -198,6 +199,7 @@ int main(){
 				}
 				else{
 					pc.printf("HEATER MODE\r\n");
+					//HEATER MODE AREA
 					if(desired_temp-current_temp>0){
 						if(wind_power<5){
 							wind_power++;
